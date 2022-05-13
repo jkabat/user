@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * @author Roland Franssen <franssen.roland@gmail.com>
  */
-final class UserIdentity implements UserInterface, EquatableInterface, EncoderAwareInterface
+class UserIdentity implements UserInterface, EquatableInterface, EncoderAwareInterface
 {
     /** @var UserId */
     private $id;
