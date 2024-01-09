@@ -9,7 +9,7 @@ use MsgPhp\User\Repository\UserRepository;
 use MsgPhp\User\Role\RoleProvider;
 use MsgPhp\User\User;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -28,6 +28,14 @@ final class UserIdentityProvider implements UserProviderInterface
     }
 
     /**
+     * @return UserIdentity
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        return $this->loadUserByUsername($identifier);
+    }
+
+    /**
      * @param string $username
      *
      * @return UserIdentity
@@ -37,7 +45,7 @@ final class UserIdentityProvider implements UserProviderInterface
         try {
             $user = $this->repository->findByUsername($username);
         } catch (EntityNotFound $e) {
-            throw new UsernameNotFoundException($e->getMessage());
+            throw new UserNotFoundException($e->getMessage());
         }
 
         return $this->fromUser($user, $username);
@@ -55,7 +63,7 @@ final class UserIdentityProvider implements UserProviderInterface
         try {
             $user = $this->repository->find($identity->getUserId());
         } catch (EntityNotFound $e) {
-            throw new UsernameNotFoundException($e->getMessage());
+            throw new UserNotFoundException($e->getMessage());
         }
 
         return $this->fromUser($user, $identity->getOriginUsername());

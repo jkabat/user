@@ -79,7 +79,7 @@ final class UserIdentityTest extends TestCase
     {
         $otherIdentity = $this->createMock(UserInterface::class);
         $otherIdentity->expects(self::any())
-            ->method('getUsername')
+            ->method('getUserIdentifier')
             ->willReturn('id')
         ;
 

@@ -15,7 +15,7 @@ use MsgPhp\User\User;
 use MsgPhp\User\UserId;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -71,7 +71,7 @@ final class UserIdentityProviderTest extends TestCase
     {
         $provider = new UserIdentityProvider($this->createRepository());
 
-        $this->expectException(UsernameNotFoundException::class);
+        $this->expectException(UserNotFoundException::class);
 
         $provider->loadUserByUsername('username');
     }
@@ -100,7 +100,7 @@ final class UserIdentityProviderTest extends TestCase
     {
         $provider = new UserIdentityProvider($this->createRepository());
 
-        $this->expectException(UsernameNotFoundException::class);
+        $this->expectException(UserNotFoundException::class);
 
         $provider->refreshUser(new UserIdentity($this->createUser()));
     }

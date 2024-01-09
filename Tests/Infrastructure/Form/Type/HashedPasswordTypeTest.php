@@ -10,8 +10,8 @@ use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
-use Symfony\Component\Security\Core\Encoder\EncoderFactory;
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validation;
@@ -86,7 +86,7 @@ final class HashedPasswordTypeTest extends TypeTestCase
         $form = $this->createForm();
         $form->submit(['plain' => 'secret']);
 
-        self::assertSame('["secret",null]', $form->getData());
+        self::assertSame('["secret"]', $form->getData());
         self::assertNull($form->getViewData());
         self::assertTrue($form->isSynchronized());
     }
@@ -107,7 +107,7 @@ final class HashedPasswordTypeTest extends TypeTestCase
         $form = $this->createForm(['password_confirm' => true]);
         $form->submit(['plain' => 'a', 'confirmation' => 'a']);
 
-        self::assertSame('["a",null]', $form->getData());
+        self::assertSame('["a"]', $form->getData());
         self::assertNull($form->getViewData());
         self::assertTrue($form->isSynchronized());
         self::assertTrue($form->isValid());
@@ -118,7 +118,7 @@ final class HashedPasswordTypeTest extends TypeTestCase
         $form = $this->createForm(['password_confirm' => true, 'invalid_message' => 'invalid']);
         $form->submit(['plain' => 'a', 'confirmation' => null]);
 
-        self::assertSame('["a",null]', $form->getData());
+        self::assertSame('["a"]', $form->getData());
         self::assertNull($form->getViewData());
         self::assertTrue($form->isSynchronized());
         self::assertFalse($form->isValid());
@@ -156,7 +156,7 @@ final class HashedPasswordTypeTest extends TypeTestCase
         })]]);
         $form->submit(['plain' => 'secret']);
 
-        self::assertSame('["secret",null]', $form->getData());
+        self::assertSame('["secret"]', $form->getData());
         self::assertNull($form->getViewData());
         self::assertTrue($form->isSynchronized());
         self::assertSame("ERROR: invalid\n", (string) $form->getErrors(true));
@@ -164,18 +164,18 @@ final class HashedPasswordTypeTest extends TypeTestCase
 
     protected function getExtensions(): array
     {
-        $hashing = new class() implements PasswordEncoderInterface {
-            public function encodePassword($raw, $salt)
+        $hashing = new class() implements PasswordHasherInterface {
+            public function hash(string $plainPassword): string
             {
-                return (string) json_encode([$raw, $salt]);
+                return (string) json_encode([$plainPassword]);
             }
 
-            public function isPasswordValid($encoded, $raw, $salt)
+            public function verify(string $hashedPassword, string $plainPassword): bool
             {
-                return $encoded === $this->encodePassword($raw, $salt);
+                return $hashedPassword === $this->hash($plainPassword);
             }
 
-            public function needsRehash(string $encoded): bool
+            public function needsRehash(string $hashedPassword): bool
             {
                 return false;
             }
@@ -183,7 +183,7 @@ final class HashedPasswordTypeTest extends TypeTestCase
 
         return [
             new ValidatorExtension(Validation::createValidator()),
-            new PreloadedExtension([new HashedPasswordType(new EncoderFactory([
+            new PreloadedExtension([new HashedPasswordType(new PasswordHasherFactory([
                 UserIdentity::class => $hashing,
                 'alternative' => ['algorithm' => 'plaintext', 'ignore_case' => false],
             ]))], []),
