@@ -23,6 +23,7 @@ final class UserIdentityTest extends TestCase
 
         self::assertSame($entity->getId(), $identity->getUserId());
         self::assertSame('id', $identity->getUsername());
+        self::assertSame('id', $identity->getUserIdentifier());
         self::assertNull($identity->getOriginUsername());
         self::assertSame(['ROLE_FOO'], $identity->getRoles());
         self::assertNull($identity->getPassword());
@@ -79,7 +80,7 @@ final class UserIdentityTest extends TestCase
     {
         $otherIdentity = $this->createMock(UserInterface::class);
         $otherIdentity->expects(self::any())
-            ->method('getUserIdentifier')
+            ->method(method_exists(UserInterface::class, 'getUserIdentifier') ? 'getUserIdentifier' : 'getUsername')
             ->willReturn('id')
         ;
 
