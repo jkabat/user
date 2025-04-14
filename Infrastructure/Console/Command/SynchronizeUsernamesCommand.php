@@ -6,6 +6,7 @@ namespace MsgPhp\User\Infrastructure\Console\Command;
 
 use MsgPhp\User\Repository\UsernameRepository;
 use MsgPhp\User\Username;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,6 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @author Roland Franssen <franssen.roland@gmail.com>
  */
+#[AsCommand(name: 'user:synchronize-usernames')]
 final class SynchronizeUsernamesCommand extends Command
 {
     protected static $defaultName = 'user:synchronize-usernames';
