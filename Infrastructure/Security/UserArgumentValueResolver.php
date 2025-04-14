@@ -6,13 +6,13 @@ namespace MsgPhp\User\Infrastructure\Security;
 
 use MsgPhp\User\User;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
+use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 /**
  * @author Roland Franssen <franssen.roland@gmail.com>
  */
-final class UserArgumentValueResolver implements ArgumentValueResolverInterface
+final class UserArgumentValueResolver implements ValueResolverInterface
 {
     use TokenStorageAwareTrait;
 
@@ -25,8 +25,12 @@ final class UserArgumentValueResolver implements ArgumentValueResolverInterface
         return is_a($type, User::class, true) ? ($argument->isNullable() || $this->isUser()) : false;
     }
 
-    public function resolve(Request $request, ArgumentMetadata $argument): \Generator
+    public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
+        if (!$this->supports($request, $argument)) {
+            return [];
+        }
+
         yield $this->toUser();
     }
 }
