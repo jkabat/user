@@ -11,7 +11,7 @@ use MsgPhp\User\Infrastructure\Security\UserIdentity;
 use MsgPhp\User\Infrastructure\Security\UserIdentityProvider as BaseUserIdentityProvider;
 use MsgPhp\User\Repository\UserRepository;
 use MsgPhp\User\UserId;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -31,6 +31,22 @@ final class UserIdentityProvider implements PayloadAwareUserProviderInterface
     }
 
     /**
+     * @return UserIdentity
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        return $this->loadUserByUsername($identifier);
+    }
+
+    /**
+     * @return UserIdentity
+     */
+    public function loadUserByIdentifierAndPayload(string $identifier, array $payload): UserInterface
+    {
+        return $this->loadUserByUsernameAndPayload($identifier, $payload);
+    }
+
+    /**
      * @param string $username
      *
      * @return UserIdentity
@@ -40,7 +56,7 @@ final class UserIdentityProvider implements PayloadAwareUserProviderInterface
         try {
             $user = $this->repository->find($this->factory->create(UserId::class, ['value' => $username]));
         } catch (EntityNotFound $e) {
-            throw new UsernameNotFoundException($e->getMessage());
+            throw new UserNotFoundException($e->getMessage());
         }
 
         return $this->provider->fromUser($user);
