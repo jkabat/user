@@ -35,7 +35,7 @@ final class ResetUserPasswordHandler
     public function __invoke(ResetUserPassword $command): void
     {
         $user = $this->repository->find($command->userId);
-        $oldCredential = $user->getCredential();
+        $oldCredential = clone $user->getCredential();
 
         if ($oldCredential instanceof PasswordProtectedCredential) {
             $userId = $command->userId;

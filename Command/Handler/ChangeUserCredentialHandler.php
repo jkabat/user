@@ -34,7 +34,7 @@ final class ChangeUserCredentialHandler
     {
         $fields = $command->fields;
         $user = $this->repository->find($command->userId);
-        $oldCredential = $user->getCredential();
+        $oldCredential = clone $user->getCredential();
 
         if ($this->handleEvent($user, $this->factory->create(ChangeCredential::class, compact('fields')))) {
             $this->repository->save($user);
